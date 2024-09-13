@@ -1,0 +1,9 @@
+requests
+beautifulsoup4
+flask
+langchain-community langchain-core
+jq
+dotenv
+chromadb
+tiktoken
+langchain-ollama

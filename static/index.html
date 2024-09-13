@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Kaiser</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="chat-container" id="chatContainer">
+        <div class="chat-header">
+            <h2>Chatbot</h2>
+            <button class="toggle-btn" onclick="toggleChat()">Hide</button>
+        </div>
+        <div class="chat-box" id="chatBox">
+            <!-- Chat messages will be appended here -->
+        </div>
+        <div class="chat-input">
+            <form id="chatForm" onsubmit="return sendMessage()">
+                <input type="text" id="messageInput" placeholder="Type a message...">
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+    <button class="show-chat-btn" onclick="toggleChat()">Show Chat</button>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+    function sendMessage() {
+    var messageInput = document.getElementById('messageInput');
+    var message = messageInput.value;
+
+    if (message.trim() === '') return false; // Prevent sending empty messages
+
+    // Save the message in a variable
+    console.log('Saved message:', message); // For debugging purposes
+
+    // Append the user message to the chat box
+    var chatBox = document.getElementById('chatBox');
+    var userMessage = document.createElement('div');
+    userMessage.classList.add('chat-message', 'user');
+    userMessage.innerHTML = '<p>' + message + '</p>';
+    chatBox.appendChild(userMessage);
+
+    // Clear the input field
+    messageInput.value = '';
+
+    // Send the user message to the backend via AJAX
+    fetch('/send', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: message }), // Sending user message to backend
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Append the chatbot's response to the chat box
+        var botMessage = document.createElement('div');
+        botMessage.classList.add('chat-message', 'bot');
+        botMessage.innerHTML = '<p>' + data.response + '</p>'; // The response from the Flask backend
+        chatBox.appendChild(botMessage);
+
+        // Scroll to the bottom of the chat box for the new message
+        chatBox.scrollTop = chatBox.scrollHeight;
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        var errorMessage = document.createElement('div');
+        errorMessage.classList.add('chat-message', 'bot');
+        errorMessage.innerHTML = '<p>Error in response</p>';
+        chatBox.appendChild(errorMessage);
+    });
+
+    return false; // Prevent form submission
+}
+
+
+    </script>
+</body>
+</html>
